@@ -1,0 +1,79 @@
+'use client';
+
+import Image from 'next/image';
+import Link from 'next/link';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ArrowLeft, ChevronLeft, ChevronRight, ShieldCheck, Sparkles } from 'lucide-react';
+import { useEffect, useState } from 'react';
+
+const slides = [
+  {
+    eyebrow: 'کالکشن تازه نوبل',
+    title: <>راحتیِ کودکانه،<br /><em>باوقار و رنگی</em></>,
+    text: 'دورس‌ها و ست‌های آزاد با رنگ‌های آرام، دوخت تمیز و پارچه‌های مناسب حرکت و بازی.',
+    image: '/products/photo_13.webp',
+    second: '/products/photo_16.webp',
+    tone: 'rose',
+    href: '/products?sort=newest'
+  },
+  {
+    eyebrow: 'ست‌های راحتی',
+    title: <>برای تمامِ<br /><em>لحظه‌های بازی</em></>,
+    text: 'ست‌های دو تکه نوبل با فرم آزاد و رنگ‌های کاربردی برای استفاده روزمره.',
+    image: '/products/photo_7.webp',
+    second: '/products/photo_20.webp',
+    tone: 'mint',
+    href: '/products?collection=ست+راحتی'
+  },
+  {
+    eyebrow: 'نوجوان نوبل',
+    title: <>سادگی که<br /><em>به چشم می‌آید</em></>,
+    text: 'مدل‌های یونیسکس با برش راحت، گلدوزی دقیق و ترکیب‌رنگ‌های مینیمال.',
+    image: '/products/photo_24.webp',
+    second: '/products/photo_3.webp',
+    tone: 'sky',
+    href: '/products?category=پسرانه'
+  }
+];
+
+export default function Hero() {
+  const [active, setActive] = useState(0);
+  useEffect(() => {
+    const timer = window.setInterval(() => setActive((current) => (current + 1) % slides.length), 6000);
+    return () => window.clearInterval(timer);
+  }, []);
+  const slide = slides[active];
+  const navigate = (delta: number) => setActive((current) => (current + delta + slides.length) % slides.length);
+
+  return (
+    <section className={`hero hero-${slide.tone}`}>
+      <div className="container hero-grid">
+        <AnimatePresence mode="wait">
+          <motion.div key={`copy-${active}`} className="hero-copy" initial={{ opacity: 0, x: 28 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -18 }} transition={{ duration: .5 }}>
+            <span className="hero-eyebrow"><Sparkles />{slide.eyebrow}</span>
+            <h1>{slide.title}</h1>
+            <p>{slide.text}</p>
+            <div className="hero-actions"><Link className="primary-button" href={slide.href}>دیدن کالکشن <ArrowLeft /></Link><Link className="text-button" href="/products">همه محصولات</Link></div>
+            <div className="hero-proof"><ShieldCheck /><span><strong>تضمین در کیفیت</strong><small>طراحی و تولید از سال ۱۳۹۶</small></span></div>
+          </motion.div>
+        </AnimatePresence>
+        <div className="hero-visual">
+          <div className="hero-sticker"><span>🐢</span><b>NOBEL</b><small>kids</small></div>
+          <AnimatePresence mode="popLayout">
+            <motion.div key={`main-${active}`} className="hero-image-main" initial={{ opacity: 0, y: 30, rotate: 2 }} animate={{ opacity: 1, y: 0, rotate: 0 }} exit={{ opacity: 0, y: -15, scale: .96 }} transition={{ duration: .55 }}>
+              <Image src={slide.image} alt="پوشاک کودک نوبل کیدز" fill sizes="(max-width: 760px) 80vw, 38vw" priority />
+            </motion.div>
+            <motion.div key={`second-${active}`} className="hero-image-second" initial={{ opacity: 0, x: -20, rotate: -5 }} animate={{ opacity: 1, x: 0, rotate: -3 }} exit={{ opacity: 0, scale: .9 }} transition={{ duration: .6, delay: .08 }}>
+              <Image src={slide.second} alt="مدل مکمل کالکشن نوبل" fill sizes="22vw" priority />
+            </motion.div>
+          </AnimatePresence>
+          <span className="hero-doodle">quality<br />first</span>
+        </div>
+      </div>
+      <div className="container hero-controls">
+        <div className="hero-dots">{slides.map((_, index) => <button key={index} className={active === index ? 'active' : ''} onClick={() => setActive(index)} aria-label={`اسلاید ${index + 1}`}><i /></button>)}</div>
+        <div><button onClick={() => navigate(-1)} aria-label="اسلاید قبلی"><ChevronRight /></button><span>{(active + 1).toLocaleString('fa-IR')} / {slides.length.toLocaleString('fa-IR')}</span><button onClick={() => navigate(1)} aria-label="اسلاید بعدی"><ChevronLeft /></button></div>
+      </div>
+    </section>
+  );
+}
