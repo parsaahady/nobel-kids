@@ -14,10 +14,10 @@ import { StoreProvider } from '@/components/Providers';
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
-  title: { default: 'Nobel Kids | پوشاک بچه‌گانه نوبل', template: '%s | Nobel Kids' },
-  description: 'نوبل کیدز؛ تولید و پخش عمده پوشاک بچه‌گانه با تضمین کیفیت از سال ۱۳۹۶.',
-  keywords: ['پوشاک بچه‌گانه', 'نوبل کیدز', 'لباس دخترانه', 'لباس پسرانه', 'پخش عمده پوشاک کودک'],
-  openGraph: { type: 'website', locale: 'fa_IR', siteName: 'Nobel Kids', title: 'Nobel Kids | پوشاک بچه‌گانه نوبل', description: 'تولید و پخش عمده پوشاک بچه‌گانه؛ تضمین در کیفیت.', images: ['/products/photo_13.webp'] },
+  title: { default: 'Nobel Kids | فروش عمده پوشاک بچه‌گانه', template: '%s | Nobel Kids' },
+  description: 'خرید عمده پوشاک بچه‌گانه نوبل کیدز در پک‌های ۵ عددی و بیشتر، مستقیم از تولید با قیمت همکاری پلکانی.',
+  keywords: ['پوشاک عمده بچه‌گانه', 'نوبل کیدز', 'خرید عمده لباس کودک', 'پک لباس بچه‌گانه', 'پخش عمده پوشاک کودک'],
+  openGraph: { type: 'website', locale: 'fa_IR', siteName: 'Nobel Kids', title: 'Nobel Kids | فروش عمده پوشاک بچه‌گانه', description: 'پک‌های عمده ۵ عددی و بیشتر، مستقیم از تولید نوبل کیدز.', images: ['/products/photo_13.webp'] },
   robots: { index: true, follow: true }
 };
 

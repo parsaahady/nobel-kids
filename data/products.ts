@@ -1,6 +1,6 @@
 import { Product } from '@/types';
 
-export const products: Product[] = [
+const productData: Product[] = [
   {
     id: 1,
     slug: 'brown-girls-relaxed-set',
@@ -242,6 +242,13 @@ export const products: Product[] = [
     rating: 4.8, tags: ['قهوه‌ای', 'قلب', 'Hello']
   }
 ];
+
+const publicBasePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+export const products: Product[] = productData.map((product) => ({
+  ...product,
+  image: `${publicBasePath}${product.image}`,
+  gallery: product.gallery.map((image) => `${publicBasePath}${image}`),
+}));
 
 export const formatPrice = (price: number) => new Intl.NumberFormat('fa-IR').format(price);
 export const findProduct = (slug: string) => products.find((product) => product.slug === slug);

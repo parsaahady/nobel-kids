@@ -1,11 +1,11 @@
-import { BadgeCheck, Boxes, Palette, Truck } from 'lucide-react';
+import { BadgePercent, Boxes, Factory, PackageCheck } from 'lucide-react';
 import IconBubble from './IconBubble';
 
 const features = [
-  { title: 'تضمین کیفیت', text: 'دوخت و پارچه کنترل‌شده', icon: BadgeCheck, tone: 'mint' as const },
-  { title: 'تولید مستقیم', text: 'عرضه مستقیم از نوبل کیدز', icon: Boxes, tone: 'butter' as const },
-  { title: 'طراحی اختصاصی', text: 'رنگ‌های کاربردی و خاص', icon: Palette, tone: 'rose' as const },
-  { title: 'ارسال سفارش', text: 'هماهنگی از بازار تهران', icon: Truck, tone: 'sky' as const },
+  { title: 'پک پایه ۵ عددی', text: 'شروع کم‌ریسک برای هر مدل', icon: PackageCheck, tone: 'mint' as const },
+  { title: 'قیمت پلکانی', text: 'تخفیف بیشتر از ۳ پک', icon: BadgePercent, tone: 'butter' as const },
+  { title: 'مستقیم از تولید', text: 'بدون واسطه برای همکاران', icon: Factory, tone: 'rose' as const },
+  { title: 'سایزبندی کاربردی', text: 'پک جور یا انتخاب تک‌سایز', icon: Boxes, tone: 'sky' as const },
 ];
 
 export default function FeatureCards() {

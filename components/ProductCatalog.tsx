@@ -77,28 +77,28 @@ export default function ProductCatalog() {
         <input type="range" min="500000" max="1400000" step="50000" value={maxPrice} onChange={(e) => setMaxPrice(Number(e.target.value))} aria-label="حداکثر قیمت" />
         <div className="range-labels"><span>۵۰۰ هزار</span><span>۱/۴ میلیون</span></div>
       </div>
-      <label className="switch-row"><span><strong>فقط کالاهای موجود</strong><small>نمایش محصولات قابل سفارش</small></span><input type="checkbox" checked={availableOnly} onChange={(e) => setAvailableOnly(e.target.checked)} /><i /></label>
+      <label className="switch-row"><span><strong>فقط پک‌های موجود</strong><small>نمایش مدل‌های آماده سفارش</small></span><input type="checkbox" checked={availableOnly} onChange={(e) => setAvailableOnly(e.target.checked)} /><i /></label>
     </>
   );
 
   return (
     <>
       <div className="container shop-toolbar">
-        <div className="catalog-search"><Search /><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="جست‌وجو بین محصولات" />{query && <button onClick={() => setQuery('')}><X /></button>}</div>
+        <div className="catalog-search"><Search /><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="جست‌وجو بین مدل‌های عمده" />{query && <button onClick={() => setQuery('')}><X /></button>}</div>
         <button className="mobile-filter-button" onClick={() => setFilterOpen(true)}><Filter /> فیلترها {activeFilterCount > 0 && <b>{activeFilterCount.toLocaleString('fa-IR')}</b>}</button>
         <div className="sort-wrap"><SlidersHorizontal /><span>مرتب‌سازی:</span><select value={sort} onChange={(e) => setSort(e.target.value)}><option value="newest">جدیدترین</option><option value="bestseller">پرفروش‌ترین</option><option value="cheapest">ارزان‌ترین</option><option value="expensive">گران‌ترین</option></select><ChevronDown /></div>
       </div>
 
       <div className="container catalog-layout">
-        <aside className="filter-sidebar"><div className="filter-title"><div><Filter /><strong>فیلتر محصولات</strong></div>{activeFilterCount > 0 && <button onClick={reset}>پاک‌کردن</button>}</div><FilterContent /></aside>
+        <aside className="filter-sidebar"><div className="filter-title"><div><Filter /><strong>فیلتر مدل‌ها</strong></div>{activeFilterCount > 0 && <button onClick={reset}>پاک‌کردن</button>}</div><FilterContent /></aside>
         <section className="catalog-results">
-          <div className="catalog-summary"><p><strong>{filtered.length.toLocaleString('fa-IR')}</strong> محصول برای شما</p>{collection && <button className="active-chip" onClick={() => setCollection('')}>{collection}<X /></button>}{category !== 'همه' && <button className="active-chip" onClick={() => setCategory('همه')}>{category}<X /></button>}</div>
-          {filtered.length ? <><motion.div layout className="product-grid catalog-grid">{filtered.slice(0, visible).map((product, index) => <motion.div layout key={product.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: Math.min(index * .035, .25) }}><ProductCard product={product} priority={index < 4} /></motion.div>)}</motion.div>{visible < filtered.length && <button className="load-more" onClick={() => setVisible((current) => current + 8)}><span>نمایش محصولات بیشتر</span><small>{visible.toLocaleString('fa-IR')} از {filtered.length.toLocaleString('fa-IR')}</small></button>}</> : <div className="empty-catalog"><span>🐢</span><h2>محصولی با این فیلتر پیدا نشد</h2><p>فیلترها را تغییر دهید تا مدل‌های بیشتری ببینید.</p><button className="secondary-button" onClick={reset}>پاک‌کردن فیلترها</button></div>}
+          <div className="catalog-summary"><p><strong>{filtered.length.toLocaleString('fa-IR')}</strong> مدل قابل سفارش عمده</p>{collection && <button className="active-chip" onClick={() => setCollection('')}>{collection}<X /></button>}{category !== 'همه' && <button className="active-chip" onClick={() => setCategory('همه')}>{category}<X /></button>}</div>
+          {filtered.length ? <><motion.div layout className="product-grid catalog-grid">{filtered.slice(0, visible).map((product, index) => <motion.div layout key={product.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: Math.min(index * .035, .25) }}><ProductCard product={product} priority={index < 4} /></motion.div>)}</motion.div>{visible < filtered.length && <button className="load-more" onClick={() => setVisible((current) => current + 8)}><span>نمایش مدل‌های بیشتر</span><small>{visible.toLocaleString('fa-IR')} از {filtered.length.toLocaleString('fa-IR')}</small></button>}</> : <div className="empty-catalog"><span>🐢</span><h2>مدلی با این فیلتر پیدا نشد</h2><p>فیلترها را تغییر دهید تا پک‌های عمده بیشتری ببینید.</p><button className="secondary-button" onClick={reset}>پاک‌کردن فیلترها</button></div>}
         </section>
       </div>
 
       <AnimatePresence>
-        {filterOpen && <motion.div className="drawer-backdrop filter-drawer-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setFilterOpen(false)}><motion.aside className="filter-drawer" initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} transition={{ type: 'spring', damping: 28, stiffness: 260 }} onClick={(e) => e.stopPropagation()}><div className="filter-drawer-head"><div><strong>فیلتر محصولات</strong>{activeFilterCount > 0 && <small>{activeFilterCount.toLocaleString('fa-IR')} فیلتر فعال</small>}</div><button onClick={() => setFilterOpen(false)}><X /></button></div><div className="filter-drawer-body"><FilterContent /></div><div className="filter-drawer-actions"><button onClick={reset}>پاک‌کردن</button><button className="primary-button" onClick={() => setFilterOpen(false)}>نمایش {filtered.length.toLocaleString('fa-IR')} محصول</button></div></motion.aside></motion.div>}
+        {filterOpen && <motion.div className="drawer-backdrop filter-drawer-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setFilterOpen(false)}><motion.aside className="filter-drawer" initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} transition={{ type: 'spring', damping: 28, stiffness: 260 }} onClick={(e) => e.stopPropagation()}><div className="filter-drawer-head"><div><strong>فیلتر مدل‌ها</strong>{activeFilterCount > 0 && <small>{activeFilterCount.toLocaleString('fa-IR')} فیلتر فعال</small>}</div><button onClick={() => setFilterOpen(false)}><X /></button></div><div className="filter-drawer-body"><FilterContent /></div><div className="filter-drawer-actions"><button onClick={reset}>پاک‌کردن</button><button className="primary-button" onClick={() => setFilterOpen(false)}>نمایش {filtered.length.toLocaleString('fa-IR')} مدل</button></div></motion.aside></motion.div>}
       </AnimatePresence>
     </>
   );

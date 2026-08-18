@@ -9,7 +9,7 @@ export default function Footer() {
     <footer className="site-footer">
       <div className="container footer-contact-strip">
         <div><IconBubble tone="rose"><Phone /></IconBubble><span><small>تلفن ثابت</small><a href="tel:02155813240" dir="ltr">{siteInfo.phone}</a></span></div>
-        <div><IconBubble tone="mint"><Smartphone /></IconBubble><span><small>موبایل سفارش</small><a href="tel:09123005065" dir="ltr">{siteInfo.mobile}</a></span></div>
+        <div><IconBubble tone="mint"><Smartphone /></IconBubble><span><small>موبایل سفارش عمده</small><a href="tel:09123005065" dir="ltr">{siteInfo.mobile}</a></span></div>
         <div><IconBubble tone="butter"><MapPin /></IconBubble><span><small>مراجعه حضوری</small><strong>بازار بزرگ تهران</strong></span></div>
       </div>
       <div className="container footer-main">
@@ -20,10 +20,10 @@ export default function Footer() {
         </section>
         <section>
           <h3>دسترسی سریع</h3>
-          <Link href="/products">همه محصولات</Link>
+          <Link href="/products">همه مدل‌های عمده</Link>
           <Link href="/products?category=دخترانه">پوشاک دخترانه</Link>
           <Link href="/products?category=پسرانه">پوشاک پسرانه</Link>
-          <Link href="/cart">سبد خرید</Link>
+          <Link href="/cart">پیش‌فاکتور عمده</Link>
           <Link href="/account">حساب کاربری</Link>
         </section>
         <section>
@@ -33,9 +33,9 @@ export default function Footer() {
           <a className="instagram-link" href={siteInfo.instagramUrl} target="_blank" rel="noreferrer"><Instagram />{siteInfo.instagram}</a>
         </section>
         <section className="trust-section">
-          <h3>خرید مطمئن</h3>
-          <div className="trust-cards"><div><ShieldCheck /><small>تضمین</small><strong>کیفیت</strong></div><div><span className="turtle-mini">🐢</span><small>تولید</small><strong>نوبل</strong></div></div>
-          <p>هماهنگی سفارش‌های عمده از طریق شماره موبایل یا اینستاگرام انجام می‌شود.</p>
+          <h3>شرایط همکاری</h3>
+          <div className="trust-cards"><div><ShieldCheck /><small>پک پایه</small><strong>۵ عددی</strong></div><div><span className="turtle-mini">🐢</span><small>قیمت</small><strong>پلکانی</strong></div></div>
+          <p>حداقل هر مدل ۵ عدد؛ تخفیف حجمی از ۳ پک همان مدل اعمال می‌شود.</p>
         </section>
       </div>
       <div className="footer-bottom"><div className="container"><span>© Nobel Kids</span><span>تولید و پخش عمده پوشاک بچه‌گانه</span></div></div>

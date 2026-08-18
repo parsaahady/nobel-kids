@@ -3,34 +3,35 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowLeft, ChevronLeft, ChevronRight, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, PackageCheck, Sparkles } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { assetPath } from '@/lib/asset-path';
 
 const slides = [
   {
-    eyebrow: 'کالکشن تازه نوبل',
-    title: <>راحتیِ کودکانه،<br /><em>باوقار و رنگی</em></>,
-    text: 'دورس‌ها و ست‌های آزاد با رنگ‌های آرام، دوخت تمیز و پارچه‌های مناسب حرکت و بازی.',
-    image: '/products/photo_13.webp',
-    second: '/products/photo_16.webp',
+    eyebrow: 'کالکشن عمده نوبل',
+    title: <>جورِ درست،<br /><em>فروشِ بهتر.</em></>,
+    text: 'مدل‌های انتخاب‌شده برای ویترین فروشگاه شما؛ هر مدل از یک پک ۵ عددی با قیمت مستقیم تولید.',
+    image: assetPath('/products/photo_13.webp'),
+    second: assetPath('/products/photo_16.webp'),
     tone: 'rose',
-    href: '/products?sort=newest'
+    href: '/products'
   },
   {
-    eyebrow: 'ست‌های راحتی',
-    title: <>برای تمامِ<br /><em>لحظه‌های بازی</em></>,
-    text: 'ست‌های دو تکه نوبل با فرم آزاد و رنگ‌های کاربردی برای استفاده روزمره.',
-    image: '/products/photo_7.webp',
-    second: '/products/photo_20.webp',
+    eyebrow: 'پک‌های منعطف برای همکاران',
+    title: <>پنج‌تایی شروع کن،<br /><em>هوشمندانه بیشتر کن.</em></>,
+    text: 'یک پک برای تست فروش یا چند پک برای قیمت پلکانی؛ تعداد سفارش را متناسب با ظرفیت فروشگاهتان بالا ببرید.',
+    image: assetPath('/products/photo_7.webp'),
+    second: assetPath('/products/photo_20.webp'),
     tone: 'mint',
     href: '/products?collection=ست+راحتی'
   },
   {
-    eyebrow: 'نوجوان نوبل',
-    title: <>سادگی که<br /><em>به چشم می‌آید</em></>,
-    text: 'مدل‌های یونیسکس با برش راحت، گلدوزی دقیق و ترکیب‌رنگ‌های مینیمال.',
-    image: '/products/photo_24.webp',
-    second: '/products/photo_3.webp',
+    eyebrow: 'خرید مستقیم از تولید',
+    title: <>از خط تولید،<br /><em>مستقیم تا رگال شما.</em></>,
+    text: 'پوشاک بچه‌گانه با دوخت کنترل‌شده، رنگ‌بندی کاربردی و ساختار سفارش مناسب فروشگاه‌داران.',
+    image: assetPath('/products/photo_24.webp'),
+    second: assetPath('/products/photo_3.webp'),
     tone: 'sky',
     href: '/products?category=پسرانه'
   }
@@ -53,21 +54,21 @@ export default function Hero() {
             <span className="hero-eyebrow"><Sparkles />{slide.eyebrow}</span>
             <h1>{slide.title}</h1>
             <p>{slide.text}</p>
-            <div className="hero-actions"><Link className="primary-button" href={slide.href}>دیدن کالکشن <ArrowLeft /></Link><Link className="text-button" href="/products">همه محصولات</Link></div>
-            <div className="hero-proof"><ShieldCheck /><span><strong>تضمین در کیفیت</strong><small>طراحی و تولید از سال ۱۳۹۶</small></span></div>
+            <div className="hero-actions"><Link className="primary-button" href={slide.href}>شروع سفارش عمده <ArrowLeft /></Link><Link className="text-button" href="#wholesale-guide">روش سفارش</Link></div>
+            <div className="hero-proof"><PackageCheck /><span><strong>پک پایه ۵ عددی</strong><small>امکان سفارش ۱۰، ۱۵، ۲۰ عدد و بیشتر از هر مدل</small></span></div>
           </motion.div>
         </AnimatePresence>
         <div className="hero-visual">
-          <div className="hero-sticker"><span>🐢</span><b>NOBEL</b><small>kids</small></div>
+          <div className="hero-sticker"><span>🐢</span><b>عمده</b><small>NOBEL</small></div>
           <AnimatePresence mode="popLayout">
             <motion.div key={`main-${active}`} className="hero-image-main" initial={{ opacity: 0, y: 30, rotate: 2 }} animate={{ opacity: 1, y: 0, rotate: 0 }} exit={{ opacity: 0, y: -15, scale: .96 }} transition={{ duration: .55 }}>
-              <Image src={slide.image} alt="پوشاک کودک نوبل کیدز" fill sizes="(max-width: 760px) 80vw, 38vw" priority />
+              <Image src={slide.image} alt="پوشاک عمده کودک نوبل کیدز" fill sizes="(max-width: 760px) 80vw, 38vw" priority />
             </motion.div>
             <motion.div key={`second-${active}`} className="hero-image-second" initial={{ opacity: 0, x: -20, rotate: -5 }} animate={{ opacity: 1, x: 0, rotate: -3 }} exit={{ opacity: 0, scale: .9 }} transition={{ duration: .6, delay: .08 }}>
-              <Image src={slide.second} alt="مدل مکمل کالکشن نوبل" fill sizes="22vw" priority />
+              <Image src={slide.second} alt="مدل مکمل پک عمده نوبل" fill sizes="22vw" priority />
             </motion.div>
           </AnimatePresence>
-          <span className="hero-doodle">quality<br />first</span>
+          <span className="hero-doodle">پک جور<br />فروش بهتر</span>
         </div>
       </div>
       <div className="container hero-controls">

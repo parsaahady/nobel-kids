@@ -65,7 +65,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       setFlying((prev) => [...prev, { ...origin, id, tx: target?.left ?? window.innerWidth * .68, ty: target?.top ?? window.innerHeight - 60 }]);
       window.setTimeout(() => setFlying((prev) => prev.filter((item) => item.id !== id)), 850);
     }
-    notify('به سبد خرید اضافه شد', 'cart');
+    notify('یک پک ۵ عددی به سفارش اضافه شد', 'cart');
   };
 
   const removeFromCart = (productId: number, size: string, color: string) => {

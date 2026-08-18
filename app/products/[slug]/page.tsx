@@ -15,8 +15,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!product) return { title: 'محصول یافت نشد' };
   return {
     title: product.name,
-    description: product.description,
-    openGraph: { title: product.name, description: product.description, images: [product.image] }
+    description: `${product.description} فروش عمده در پک‌های ۵ عددی و بیشتر، مستقیم از تولید نوبل.`,
+    openGraph: { title: `خرید عمده ${product.name}`, description: `${product.description} حداقل سفارش یک پک ۵ عددی.`, images: [product.image] }
   };
 }
 

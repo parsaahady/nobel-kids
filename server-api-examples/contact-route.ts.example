@@ -1,0 +1,9 @@
+// Optional Next.js server API example for a future Vercel/Node deployment.
+// Move this file to app/api/contact/route.ts after disabling `output: export`.
+import { NextResponse } from 'next/server';
+
+export async function POST(request: Request) {
+  const body = await request.json();
+  if (!body.name || !body.phone || !body.message) return NextResponse.json({ ok: false }, { status: 400 });
+  return NextResponse.json({ ok: true });
+}

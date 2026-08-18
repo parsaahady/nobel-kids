@@ -11,7 +11,7 @@ export default function BottomNav() {
   const items = [
     { href: '/', label: 'خانه', icon: Home },
     { href: '/products', label: 'دسته‌بندی', icon: Grid2X2 },
-    { href: '/cart', label: 'سبد خرید', icon: ShoppingBag, count: cartCount },
+    { href: '/cart', label: 'سفارش', icon: ShoppingBag, count: cartCount },
     { href: '/account', label: 'حساب من', icon: UserRound },
   ];
   return (
