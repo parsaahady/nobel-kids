@@ -1,0 +1,89 @@
+name: docker-smoke
+
+# Builds the real image and proves the stack actually comes alive:
+# entrypoint → schema import → seed → admin bootstrap → health check → API.
+# Not merely "docker build succeeded".
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  compose-up-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build and start the stack
+        run: docker compose up -d --build
+
+      - name: Wait for the app to become healthy
+        run: |
+          for i in $(seq 1 60); do
+            status=$(docker inspect --format='{{.State.Health.Status}}' nobel-app 2>/dev/null || echo starting)
+            echo "attempt $i: $status"
+            [ "$status" = "healthy" ] && exit 0
+            sleep 5
+          done
+          echo "::error::app never became healthy"
+          docker compose logs
+          exit 1
+
+      - name: Health endpoint reports ok
+        run: |
+          body=$(curl -fsS http://localhost:8080/api/health.php)
+          echo "$body"
+          echo "$body" | grep -q '"status":"ok"'
+          echo "$body" | grep -q '"db":"up"'
+          echo "$body" | grep -q '"schema":"ok"'
+          echo "$body" | grep -q '"uploads":"writable"'
+
+      - name: Seed data is present
+        run: |
+          total=$(curl -fsS "http://localhost:8080/api/products/index.php?pageSize=1" \
+            | python3 -c "import json,sys; print(json.load(sys.stdin)['data']['total'])")
+          echo "products: $total"
+          [ "$total" -eq 17 ]
+
+      - name: Storefront HTML is served
+        run: |
+          curl -fsS http://localhost:8080/ | grep -q '<html'
+          curl -fsS -o /dev/null -w '%{http_code}\n' http://localhost:8080/products/ | grep -q 200
+
+      - name: Admin login works
+        run: |
+          code=$(curl -s -o /tmp/login.json -w '%{http_code}' \
+            -X POST http://localhost:8080/api/admin-auth/login.php \
+            -H 'Content-Type: application/json' \
+            -H 'Origin: http://localhost:8080' \
+            -d '{"identifier":"09120000000","password":"ChangeMe_Admin123"}')
+          cat /tmp/login.json
+          [ "$code" = "200" ]
+
+      - name: Library files are not web-readable
+        run: |
+          for path in /api/lib/auth.php /api/config/database.php /config/config.php /database/seed.sql; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:8080$path")
+            echo "$path → $code"
+            case "$code" in 403|404) ;; *) echo "::error::$path returned $code"; exit 1 ;; esac
+          done
+
+      - name: Restart is idempotent (no re-seed, no data loss)
+        run: |
+          docker compose restart app
+          sleep 25
+          total=$(curl -fsS "http://localhost:8080/api/products/index.php?pageSize=1" \
+            | python3 -c "import json,sys; print(json.load(sys.stdin)['data']['total'])")
+          echo "products after restart: $total"
+          [ "$total" -eq 17 ]
+
+      - name: Dump logs on failure
+        if: failure()
+        run: docker compose logs --tail=200
+
+      - name: Tear down
+        if: always()
+        run: docker compose down -v

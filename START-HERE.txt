@@ -1,0 +1,93 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║  NOBEL KIDS — نسخه جدید / v2                                         ║
+║  Static Next.js frontend  +  PHP 8 / PDO / MySQL backend             ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+This archive is the COMPLETE new project. It fully replaces the old
+Next.js + Prisma + PostgreSQL repository. Delete the old one.
+
+
+┌──────────────────────────────────────────────────────────────────────┐
+│ 1. JUST WANT TO SEE IT RUN?  (Docker)                                │
+└──────────────────────────────────────────────────────────────────────┘
+
+    docker compose up -d --build
+
+    → http://localhost:8080              the shop
+    → http://localhost:8080/admin/login/ admin panel
+      mobile 09120000000   password ChangeMe_Admin123
+
+    First boot takes a few minutes: it builds the frontend, imports the
+    database schema and loads 17 demo products. Watch it with:
+
+        docker compose logs -f app
+
+    Full guide: docs/DOCKER.md
+
+
+┌──────────────────────────────────────────────────────────────────────┐
+│ 2. DEPLOYING TO YOUR DIRECTADMIN HOSTING?  (the real target)         │
+└──────────────────────────────────────────────────────────────────────┘
+
+    Docker is NOT needed and NOT used in production.
+
+    Open  README-DEPLOYMENT.md  and follow the 22 numbered steps.
+    Short version:
+
+      a) phpMyAdmin → create a database → import database/schema.sql
+         then database/seed.sql
+      b) copy config/config.example.php to config/config.php and fill in
+         your database name, user, password, and a new app secret
+      c) upload the CONTENTS of the release/ folder into public_html/
+      d) visit https://yourdomain.com/api/health.php — expect "status":"ok"
+      e) create your admin account via /rescue/ and then DELETE /rescue/
+
+    Requirements on the server: Apache with mod_rewrite, PHP 8.0+, MySQL.
+    No Node.js. No SSH. No PostgreSQL. No Docker. FTP + phpMyAdmin is enough.
+
+
+┌──────────────────────────────────────────────────────────────────────┐
+│ 3. WHAT'S IN HERE                                                    │
+└──────────────────────────────────────────────────────────────────────┘
+
+    out/            the built static site — this is what gets uploaded
+    api/            49 PHP endpoints + 15 library files (the backend)
+    database/       schema.sql, seed.sql, migrations
+    config/         config.example.php (copy it to config.php)
+    rescue/         emergency PHP panel — reset admin password, DB check
+    app/ components/ lib/    Next.js source (only needed to rebuild)
+    docker/         container entrypoint
+    scripts/        build-data, sitemap generator, release packager
+    docs/           API, DOCKER, MIGRATION, SECURITY, TESTING, FILE-CHANGES
+
+    README.md                overview and project layout
+    README-DEPLOYMENT.md     ← the 22-step DirectAdmin guide
+    docs/DOCKER.md           running it in containers
+    docs/MIGRATION.md        what changed from the old stack and why
+
+
+┌──────────────────────────────────────────────────────────────────────┐
+│ 4. REBUILDING THE FRONTEND (only if you change the design)           │
+└──────────────────────────────────────────────────────────────────────┘
+
+    npm install
+    npm run build        # regenerates out/
+    npm run package      # regenerates release/ (what you upload)
+
+    Local development with a PHP backend on your own machine:
+    see the "Local development" section of README.md.
+
+
+┌──────────────────────────────────────────────────────────────────────┐
+│ 5. BEFORE GOING LIVE                                                 │
+└──────────────────────────────────────────────────────────────────────┘
+
+    [ ] changed every password and the app secret in config/config.php
+    [ ] 'env' set to 'production'
+    [ ] deleted the rescue/ folder (or set a strong rescue token)
+    [ ] configured a real SMS provider, or customers cannot log in
+    [ ] https works and /api/health.php returns "status":"ok"
+    [ ] worked through docs/TESTING.md
+
+    config/config.php is intentionally NOT in this archive. Nothing here
+    contains a real password, key or secret.

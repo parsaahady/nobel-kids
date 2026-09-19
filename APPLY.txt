@@ -1,0 +1,124 @@
+اصلاحیهٔ خطای build داکر (exit code 1)
+Docker build fix — generateStaticParams empty array
+
+
+■ خطایی که دیدید
+──────────────────
+    failed to solve: process "/bin/sh -c node scripts/fetch-static-data.mjs
+    || true && node scripts/generate-sitemap.mjs && npx next build"
+    did not complete successfully: exit code: 1
+
+خطای واقعی که در لاگ کامل داکر بالاتر از این خط بود:
+
+    Error: Page "/products/[slug]" returned an empty array from
+    "generateStaticParams()". With "output: export", at least one route
+    must be generated.
+
+
+■ علت — این باگ من بود، نه اشتباه شما
+───────────────────────────────────────
+داخل `docker build` هیچ API‌ای در دسترس نیست (کانتینر PHP و دیتابیس
+هنوز بالا نیامده‌اند). پس fetch-static-data.mjs دادهٔ خالی می‌نویسد:
+
+    .static-data/products.json  →  {}
+
+بعد Next.js با تنظیم `output: 'export'` می‌بیند که برای مسیر
+/products/[slug] صفر صفحه باید بسازد و عمداً با خطا متوقف می‌شود.
+
+من این حالت را قبلاً تست نکرده بودم چون در محیط من همیشه یک API
+محلی بالا بود. دقیقاً همین خطا را بازتولید کردم و رفع شد.
+
+
+■ راه‌حل
+─────────
+حالا Dockerfile سه منبع داده را به‌ترتیب امتحان می‌کند:
+
+  ۱. اگر out/ آماده در build context باشد → همان را می‌برد
+     (سریع‌ترین، و HTML دقیقاً همانی است که خودتان تست کرده‌اید)
+
+  ۲. وگرنه API زنده را امتحان می‌کند
+     (با --build-arg NEXT_PUBLIC_API_BASE=...)
+
+  ۳. اگر API نبود → از database/seed.sql داده می‌سازد
+     (هیچ دیتابیس و PHP لازم نیست؛ همان ۱۷ محصول)
+
+حالت ۳ همان چیزی است که در `docker compose up -d --build` ساده
+اتفاق می‌افتد، پس build همیشه موفق می‌شود.
+
+
+■ فایل‌های تغییریافته
+──────────────────────
+  Dockerfile                          منطق سه‌مرحله‌ای
+  scripts/static-data-from-seed.mjs   جدید — پارسر seed.sql
+  .dockerignore                       توضیح نحوهٔ استفاده از out/ آماده
+  package.json                        اسکریپت npm run data:seed
+  docs/DOCKER.md                      بخش منابع داده + عیب‌یابی
+  docs/FILE-CHANGES.md                ثبت فایل جدید
+
+
+■ نحوهٔ اعمال
+──────────────
+این فایل‌ها را روی پروژه کپی کنید (بازنویسی شوند)، سپس:
+
+    docker compose build --no-cache
+    docker compose up -d
+    docker compose logs -f app
+
+نکته: مسیر پوشه‌ها را حفظ کنید —
+scripts/static-data-from-seed.mjs باید داخل scripts/ برود.
+
+
+■ در لاگ build چه باید ببینید
+───────────────────────────────
+    ▸ no API reachable during build — falling back to database/seed.sql
+
+    ▸ Static data rebuilt from database/seed.sql (offline fallback)
+      ✓ products     17 detail pages
+      ✓ catalog      products=17 categories=4 sizes=13
+      ✓ home         featured=5 newest=8 bestsellers=5
+
+    ✓ Generating static pages (28/28)
+
+و بعد در زمان اجرا:
+
+    [nobel] ready — starting apache2-foreground
+
+
+■ نکتهٔ مهم دربارهٔ قیمت‌ها
+─────────────────────────────
+در حالت ۳، قیمت و موجودی داخل HTML از فایل seed می‌آید، نه از
+دیتابیس زنده. این برای شروع مشکلی ندارد، ولی بعد از اینکه محصولات
+را از پنل ادمین ویرایش کردید، HTML قدیمی می‌ماند.
+
+سایت زنده همیشه درست است (مرورگر از API می‌گیرد). فقط برای سئو
+بهتر است بعداً یک‌بار با API واقعی build کنید:
+
+    docker compose build --build-arg NEXT_PUBLIC_API_BASE=http://host.docker.internal:8080 app
+    docker compose up -d app
+
+یا ساده‌تر: روی سیستم خودتان `npm run build` بزنید، خط `out` را در
+.dockerignore کامنت کنید، و دوباره image بسازید.
+
+
+■ تأیید شد
+────────────
+  • خطای شما دقیقاً بازتولید شد (exit code 1)
+  • پارسر seed.sql: ۱۷ محصول، ۴ دسته (دخترانه ۱۱ / پسرانه ۶)،
+    ۱۳ سایز، قیمت ۵۲۸۰۰۰ و tiers [{3,400},{6,800}] — مطابق دیتابیس
+  • build کامل با موفقیت: exit 0، ۲۸ صفحه، ۱۷ صفحهٔ محصول
+  • HTML خروجی محتوای واقعی فارسی دارد (۵۹ کیلوبایت برای صفحهٔ محصول)
+  • sitemap: ۲۴ URL
+
+  انجام نشد: خود `docker build` اجرا نشده چون داکر روی محیط من
+  نصب نیست. منطق shell و خروجی Node کاملاً تست شده است.
+
+
+■ دو باگ که حین تست در پارسر خودم پیدا و رفع کردم
+───────────────────────────────────────────────────
+  ۱. بخش `ON DUPLICATE KEY UPDATE` به‌عنوان ردیف داده خوانده می‌شد
+     و ۴ دستهٔ جعلی می‌ساخت (۸ به‌جای ۴).
+  ۲. استخراج slug از `(SELECT id FROM products WHERE slug = 'x')`
+     شکست می‌خورد، چون توکنایزر کوتیشن‌ها را قبلاً حذف کرده بود.
+     نتیجه: رنگ/سایز/تصویر همه صفر می‌شد.
+
+  هر دو رفع و با دادهٔ واقعی تأیید شدند.

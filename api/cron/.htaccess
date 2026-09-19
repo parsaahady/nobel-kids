@@ -1,0 +1,7 @@
+# Cron scripts. CLI is the intended entry point; HTTP access additionally
+# requires security.cron_token. No directory listing either way.
+Options -Indexes
+<IfModule mod_headers.c>
+    Header always set Cache-Control "no-store"
+    Header always set X-Robots-Tag "noindex, nofollow"
+</IfModule>

@@ -1,0 +1,106 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# Nobel Kids — root .htaccess  (public_html/.htaccess)
+# Apache + DirectAdmin shared hosting.
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ─────────────────────────── Default documents ─────────────────────────────
+DirectoryIndex index.html index.php
+
+# ──────────────────────────── Security headers ─────────────────────────────
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=()"
+    # Enable after confirming HTTPS works everywhere (1 year HSTS):
+    # Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    Header unset X-Powered-By
+    Header always unset X-Powered-By
+</IfModule>
+ServerSignature Off
+
+# ───────────────────────────── Hide dotfiles ───────────────────────────────
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+# Block source, config and dependency files that must never be served.
+<FilesMatch "\.(sql|md|json|lock|log|ts|tsx|mjs|env|ini|sh|bak|old|orig|swp|dist)$">
+    Require all denied
+</FilesMatch>
+# …but the static export legitimately needs these JSON assets:
+<FilesMatch "^(manifest|site)\.json$">
+    Require all granted
+</FilesMatch>
+
+# Deny access to server-side directories entirely.
+RedirectMatch 404 ^/(config|database|storage|scripts)(/|$)
+
+# ───────────────────────────── HTTPS redirect ──────────────────────────────
+# Uncomment once the SSL certificate is installed in DirectAdmin.
+# <IfModule mod_rewrite.c>
+#     RewriteEngine On
+#     RewriteCond %{HTTPS} !=on
+#     RewriteCond %{HTTP:X-Forwarded-Proto} !https
+#     RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# </IfModule>
+
+# ──────────────────── Static export: clean URLs & SPA fallback ─────────────
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Never rewrite the API or uploads — they are real files.
+    RewriteRule ^api/ - [L]
+    RewriteRule ^uploads/ - [L]
+
+    # Existing file or directory → serve as-is.
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # /about  →  /about.html   (Next.js static export output)
+    RewriteCond %{REQUEST_FILENAME}.html -f
+    RewriteRule ^(.+?)/?$ /$1.html [L]
+
+    # /about/ →  /about/index.html
+    RewriteCond %{REQUEST_FILENAME}/index.html -f
+    RewriteRule ^(.+?)/?$ /$1/index.html [L]
+
+    # Unknown path → the exported 404 page.
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ /404.html [L]
+</IfModule>
+
+# ─────────────────────────────── Compression ───────────────────────────────
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/css text/javascript
+    AddOutputFilterByType DEFLATE application/javascript application/json
+    AddOutputFilterByType DEFLATE application/xml image/svg+xml
+</IfModule>
+
+# ──────────────────────────────── Caching ──────────────────────────────────
+<IfModule mod_expires.c>
+    ExpiresActive On
+    # Hashed build assets never change → cache hard.
+    <FilesMatch "\.(js|css|woff2|woff|ttf|otf)$">
+        ExpiresDefault "access plus 1 year"
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+    <FilesMatch "\.(webp|jpg|jpeg|png|gif|svg|ico|avif)$">
+        ExpiresDefault "access plus 30 days"
+    </FilesMatch>
+    # HTML must revalidate so deploys appear immediately.
+    <FilesMatch "\.html$">
+        ExpiresDefault "access plus 0 seconds"
+        Header set Cache-Control "public, max-age=0, must-revalidate"
+    </FilesMatch>
+</IfModule>
+
+# ────────────────────────────── MIME types ─────────────────────────────────
+<IfModule mod_mime.c>
+    AddType image/webp .webp
+    AddType image/avif .avif
+    AddType font/woff2 .woff2
+    AddType application/manifest+json .webmanifest
+</IfModule>

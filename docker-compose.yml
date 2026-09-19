@@ -1,0 +1,146 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# Nobel Kids — full stack in two containers
+#
+#   docker compose up -d --build     start
+#   docker compose logs -f app       watch the boot sequence
+#   docker compose down              stop (data is kept)
+#   docker compose down -v           stop AND delete all data
+#
+# Then open  http://localhost:8080
+#
+# First boot imports schema.sql + seed.sql automatically and sets the admin
+# password from ADMIN_MOBILE / ADMIN_PASSWORD below.
+# ═══════════════════════════════════════════════════════════════════════════
+
+services:
+
+  # ─────────────────────────────── Database ─────────────────────────────────
+  db:
+    image: mariadb:11
+    container_name: nobel-db
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: nobel_kids
+      MARIADB_USER: nobel
+      MARIADB_PASSWORD: nobel_db_password
+      MARIADB_ROOT_PASSWORD: nobel_root_password
+      # Persian text and emoji need real utf8mb4 end to end.
+      MARIADB_AUTO_UPGRADE: "1"
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-storage-engine=InnoDB
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      # The app container waits for this before it tries to import anything.
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+    # Not published by default: only the app needs it, and an exposed database
+    # is a liability. Uncomment to inspect it with a local GUI client.
+    # ports:
+    #   - "127.0.0.1:3306:3306"
+
+  # ──────────────────────────── Application ─────────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Leave empty to build without live data (pages hydrate in the browser).
+        # Point at a running instance to bake products into the HTML for SEO.
+        NEXT_PUBLIC_API_BASE: ""
+        NEXT_PUBLIC_SITE_URL: "http://localhost:8080"
+    container_name: nobel-app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # ── Database (host is the service name, not localhost) ──
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_NAME: nobel_kids
+      DB_USER: nobel
+      DB_PASSWORD: nobel_db_password
+
+      # ── Application ──
+      APP_URL: "http://localhost:8080"
+      # 'development' shows OTP codes in the API response so you can log in
+      # without an SMS provider. Switch to 'production' for anything public.
+      APP_ENV: development
+      APP_TIMEZONE: Asia/Tehran
+      # APP_SECRET is generated once and persisted in the storage volume.
+      # Set it explicitly in production to control it yourself:
+      # APP_SECRET: "<64 hex chars>"
+
+      # ── First-boot admin (remove after the first successful login) ──
+      ADMIN_MOBILE: "09120000000"
+      ADMIN_PASSWORD: "ChangeMe_Admin123"
+
+      # ── OTP: with APP_ENV=development the code is returned by the API ──
+      OTP_EXPOSE_DEV_CODE: "true"
+
+      # ── Optional integrations ──
+      SMS_PROVIDER: console          # console | kavenegar | ghasedak
+      # SMS_API_KEY: ""
+      # SMS_SENDER: ""
+      PAYMENT_PROVIDER: manual       # manual | zarinpal | idpay
+      PAYMENT_GATEWAY_ENABLED: "false"
+      # PAYMENT_MERCHANT_ID: ""
+      # PAYMENT_CALLBACK_URL: "http://localhost:8080/api/payments/callback.php"
+
+      # ── Emergency panel + cron over HTTP (empty = disabled) ──
+      # RESCUE_TOKEN: "<32+ random chars>"
+      # CRON_TOKEN: "<32+ random chars>"
+
+      # ── Extra CORS origins, comma separated (only for a separate dev frontend) ──
+      # ALLOWED_ORIGINS: "http://localhost:3000"
+    ports:
+      - "8080:80"
+    volumes:
+      # Uploaded product images must outlive the container.
+      - uploads_data:/var/www/html/uploads
+      # Logs + the generated app.secret.
+      - storage_data:/var/www/html/storage
+
+  # ─────────────────────── Scheduled jobs (optional) ────────────────────────
+  # Cancels abandoned online payments and releases their stock, every 15 min.
+  # Only needed when PAYMENT_GATEWAY_ENABLED=true. Start it with:
+  #   docker compose --profile cron up -d
+  cron:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nobel-cron
+    restart: unless-stopped
+    profiles: ["cron"]
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_NAME: nobel_kids
+      DB_USER: nobel
+      DB_PASSWORD: nobel_db_password
+      APP_URL: "http://localhost:8080"
+      APP_ENV: production
+      SKIP_SEED: "1"
+    volumes:
+      - uploads_data:/var/www/html/uploads
+      - storage_data:/var/www/html/storage
+    # The entrypoint still prepares config, then this loop replaces Apache.
+    command: >
+      sh -c 'while true; do
+        php /var/www/html/api/cron/expire-orders.php || true;
+        sleep 900;
+      done'
+
+volumes:
+  db_data:
+  uploads_data:
+  storage_data:

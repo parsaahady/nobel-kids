@@ -1,0 +1,25 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# Nobel Kids — /api/.htaccess
+# The API is PHP and must execute, but its internals must stay private.
+# ═══════════════════════════════════════════════════════════════════════════
+
+# No directory listings.
+Options -Indexes
+
+<IfModule mod_headers.c>
+    # API responses are never cacheable and never embeddable.
+    Header always set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+</IfModule>
+
+# config/ and lib/ are includes only — they must never be requested directly.
+RedirectMatch 404 ^/api/(config|lib)(/|$)
+
+# Block dotfiles and non-PHP source inside the API tree.
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+<FilesMatch "\.(sql|md|log|ini|bak|old|orig|txt)$">
+    Require all denied
+</FilesMatch>

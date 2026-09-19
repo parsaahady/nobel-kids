@@ -1,0 +1,45 @@
+# ── Never copy into the image ───────────────────────────────────────────────
+
+# Dependencies: the builder stage runs `npm ci` itself, and the runtime stage
+# has no Node at all. Copying this would add ~400 MB for nothing.
+node_modules
+
+# Build output: regenerated inside the builder stage.
+.next
+out
+release
+.static-data
+#
+# Want the image to reuse an out/ you already built on your own machine
+# (fastest build, and guarantees the HTML matches what you tested)?
+# Comment out the `out` line above, run `npm run build`, then rebuild the
+# image — the Dockerfile detects out/index.html and skips the Node build
+# entirely. Leaving it ignored is fine: the builder regenerates out/ from
+# the live API, or from database/seed.sql when no API is reachable.
+
+# SECRETS — must never reach an image layer.
+config/config.php
+.env
+.env.*
+storage/logs
+*.log
+
+# Local dev helper: emulates .htaccess for `php -S`. Apache uses the real ones.
+.dev-router.php
+
+# Uploaded files belong in a volume, not baked into the image.
+uploads/*
+!uploads/.htaccess
+
+# Version control and tooling noise.
+.git
+.gitignore
+.github
+*.tsbuildinfo
+.DS_Store
+Thumbs.db
+
+# Docs are for humans reading the repo, not for the runtime image.
+docs
+README.md
+README-DEPLOYMENT.md

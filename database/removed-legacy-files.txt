@@ -1,0 +1,102 @@
+# Removed legacy files (Node/Prisma/PostgreSQL stack)
+
+## Next.js API routes (replaced by /api/**.php)
+app/api/account/addresses/[id]/default/route.ts
+app/api/account/addresses/[id]/route.ts
+app/api/account/addresses/route.ts
+app/api/account/profile/route.ts
+app/api/admin-auth/change-password/route.ts
+app/api/admin-auth/login/route.ts
+app/api/admin-auth/logout/route.ts
+app/api/admin/audit-logs/route.ts
+app/api/admin/categories/[id]/route.ts
+app/api/admin/categories/route.ts
+app/api/admin/contact-messages/route.ts
+app/api/admin/coupons/[id]/route.ts
+app/api/admin/coupons/route.ts
+app/api/admin/dashboard/route.ts
+app/api/admin/orders/[id]/route.ts
+app/api/admin/orders/route.ts
+app/api/admin/products/[id]/duplicate/route.ts
+app/api/admin/products/[id]/inventory/route.ts
+app/api/admin/products/[id]/route.ts
+app/api/admin/products/[id]/stock/route.ts
+app/api/admin/products/route.ts
+app/api/admin/upload/route.ts
+app/api/admin/users/[id]/route.ts
+app/api/admin/users/route.ts
+app/api/auth/logout/route.ts
+app/api/auth/me/route.ts
+app/api/auth/request-otp/route.ts
+app/api/auth/verify-otp/route.ts
+app/api/cart/items/[id]/route.ts
+app/api/cart/items/route.ts
+app/api/cart/route.ts
+app/api/categories/route.ts
+app/api/checkout/quote/route.ts
+app/api/checkout/route.ts
+app/api/contact/route.ts
+app/api/health/route.ts
+app/api/orders/[id]/route.ts
+app/api/orders/route.ts
+app/api/payments/callback/route.ts
+app/api/products/[slug]/route.ts
+app/api/products/route.ts
+app/api/search/route.ts
+app/api/test-support/rate-reset/route.ts
+app/api/wishlist/route.ts
+
+## Server services (ported to api/lib/*.php)
+server/audit.ts
+server/auth/crypto.ts
+server/auth/guards.ts
+server/auth/otp.ts
+server/auth/session.ts
+server/db.ts
+server/env.ts
+server/errors.ts
+server/http.ts
+server/logger.ts
+server/mappers.ts
+server/payments/index.ts
+server/rate-limit.ts
+server/services/account.ts
+server/services/admin.ts
+server/services/cart.ts
+server/services/catalog.ts
+server/services/orders.ts
+server/services/payments.ts
+server/services/wishlist.ts
+server/sms/index.ts
+server/storage/index.ts
+server/storage/validate.ts
+server/validation/schemas.ts
+
+## Prisma
+prisma/migrations/20260910125851_init/migration.sql
+prisma/migrations/20260911100000_admin_password_auth/migration.sql
+prisma/migrations/migration_lock.toml
+prisma/schema.prisma
+prisma/seed.compiled.cjs
+prisma/seed.ts
+
+## Container / infra (the NODE + POSTGRES ones — deleted)
+# Note: Docker support still exists, but it was rewritten from scratch for the
+# PHP + Apache + MySQL stack. The files below are the OLD Node/Postgres ones.
+# The current ones (same names, completely different contents) are:
+#   Dockerfile            → php:8.3-apache runtime, Node only in the build stage
+#   docker-compose.yml    → app + MariaDB (was: Next.js server + PostgreSQL)
+#   docker/entrypoint.sh  → schema/seed import (was: prisma migrate deploy)
+.dockerignore
+Dockerfile
+docker-compose.yml
+docker-entrypoint.sh
+
+## Uploads route (replaced by Apache serving /uploads directly)
+app/uploads/[[...path]]/route.ts
+
+## Tests bound to Prisma/Postgres
+tests/integration/rate-limit.ts
+tests/integration/run.ts
+tests/unit/pricing.test.ts
+tests/unit/validation.test.ts

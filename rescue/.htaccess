@@ -1,0 +1,11 @@
+# Emergency panel. Harden it while it exists, and DELETE the folder afterwards.
+Options -Indexes
+<IfModule mod_headers.c>
+    Header always set X-Robots-Tag "noindex, nofollow"
+    Header always set Cache-Control "no-store"
+</IfModule>
+
+# Optional extra lock: uncomment and set your own IP to restrict access.
+# <RequireAll>
+#     Require ip 1.2.3.4
+# </RequireAll>

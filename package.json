@@ -1,0 +1,33 @@
+{
+  "name": "nobel-kids-store",
+  "version": "2.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --hostname 0.0.0.0",
+    "dev:api": "php -S 0.0.0.0:8080 -t . .dev-router.php",
+    "data": "node scripts/fetch-static-data.mjs",
+    "build": "node scripts/fetch-static-data.mjs && node scripts/generate-sitemap.mjs && next build",
+    "build:only": "next build",
+    "start": "npx serve out",
+    "lint": "tsc --noEmit",
+    "package": "node scripts/package-release.mjs",
+    "data:seed": "node scripts/static-data-from-seed.mjs"
+  },
+  "dependencies": {
+    "@fontsource/vazirmatn": "^5.1.0",
+    "framer-motion": "^11.5.4",
+    "lucide-react": "^0.441.0",
+    "next": "^16.3.1",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.16.5",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.45",
+    "tailwindcss": "^3.4.11",
+    "typescript": "^5.6.2"
+  }
+}
